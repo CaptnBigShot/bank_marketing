@@ -1,0 +1,1 @@
+FLASK_APP=bank_marketing.py

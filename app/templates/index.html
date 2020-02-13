@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <h1 class="display-4">Customer Import Files</h1>
+
+    <!-- Button trigger modal -->
+    <div class="row mt-2 mb-2">
+        <div class="col-md-12 float-right">
+            <button type="button" class="btn btn-primary btn-md float-right" data-toggle="modal" data-target="#addCustomersModal">
+                Import Customers
+                <i class="fa fa-file-import"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Listing of Customer Import Files -->
+    <div class="row mt-2 mb-2">
+        <div class="col-md-12">
+            <table class="table">
+                <tr>
+                    <th>ID</th>
+                    <th>Timestamp</th>
+                    <th>Name</th>
+                    <th>Customers</th>
+                    <th></th>
+                </tr>
+                <tbody>
+                    {% for import_file in import_files %}
+                        <tr id="import_file{{ import_file.id }}">
+                            <th scope="row">{{ import_file.id }}</th>
+                            <td>{{ import_file.timestamp_local().strftime('%m/%d/%Y %I:%M %p') }}</td>
+                            <td>{{ import_file.name }}</td>
+                            <td>{{ import_file.customers_count() }}</td>
+                            <td>
+                                <a href="{{ url_for('view_customer_import_file', customer_import_file_id=import_file.id) }}" class="mr-3">
+                                    <i class="fa fa-binoculars"></i>
+                                </a>
+                                <a href="{{ url_for('delete_customer_import_file', customer_import_file_id=import_file.id) }}" class="mr-3">
+                                    <i class="fa fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="addCustomersModal" tabindex="-1" role="dialog" aria-labelledby="addCustomersModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCustomersModalLongTitle">Import Customers</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <p>
+                                Import a .csv file with the following tab-delimited fields including headers.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- File fields description -->
+                    <div class="row">
+                        <div class="col-md-12">
+                             <table class="table table-sm">
+                                 <tr>
+                                     <th>Field</th>
+                                     <th>Description</th>
+                                 </tr>
+                                 <tr>
+                                     <th>Age</th>
+                                     <td>Integer >= 0</td>
+                                 </tr>
+                                 <tr>
+                                     <th>Income</th>
+                                     <td>Integer >= 0 (thousands)</td>
+                                 </tr>
+                                 <tr>
+                                     <th>Family</th>
+                                     <td>Integer >= 1</td>
+                                 </tr>
+                                 <tr>
+                                     <th>CCAvg</th>
+                                     <td>Decimal >= 0.0</td>
+                                 </tr>
+                                 <tr>
+                                     <th>Education</th>
+                                     <td>Integer 1 - Undergrad, 2 - Graduate, 3 - Advanced/Professional</td>
+                                 </tr>
+                                 <tr>
+                                     <th>CDAccount</th>
+                                     <td>Boolean: 0 or 1</td>
+                                 </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- Form -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <form action="" method="post" enctype="multipart/form-data">
+                                {{ form.hidden_tag() }}
+                                <div class="form-row align-items-center">
+                                    <div class="col-sm-6 my-1">
+                                        <div class="custom-file">
+                                            {{ form.customers_csv(class="custom-file-input", id="customersFileInput") }}
+                                            {{ form.customers_csv.label(class="custom-file-label", for="customersFileInput") }}
+                                            <div class="invalid-feedback">Example invalid custom file feedback</div>
+                                      </div>
+                                    </div>
+                                    <div class="col-auto my-1">
+                                        {{ form.submit(class="btn btn-primary float-right") }}
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
