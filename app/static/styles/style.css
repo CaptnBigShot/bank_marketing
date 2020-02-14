@@ -22,7 +22,7 @@ a {
 
  .button-primary {
 	 font-size: 12px;
-	 margin: 0 0 0 12px;
+	 margin: 0 0 0 0px;
 	 border-radius: 5px;
 	 background-color: #fff;
 	 border: 1px #000 solid;
@@ -95,3 +95,46 @@ a {
 	 color: #008cbf;
 	 text-decoration: none;
 }
+
+.dropdown {
+  position: relative;
+  display: inline-block; }
+  .dropdown:hover .dropdown-content {
+    display: block; }
+  .dropdown:active .dropdown-content {
+    display: block; }
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background: #fff;
+  min-width: 160px;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.24);
+  cursor: pointer;
+  text-align: left;
+  top: 33px;
+  width: auto;
+  z-index: 1; }
+  .dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block; }
+    .dropdown-content a:hover {
+      background-color: #ddd; }
+    .dropdown-content a:first-child {
+      border-radius: 16px 16px 0 0; }
+    .dropdown-content a:last-child {
+      border-radius: 0 0 16px 16px; }
+
+.button-group {
+  display: inline-block;
+  text-align: right;
+  white-space: nowrap;
+  width: 225px; }
+  .button-group .button-group-item {
+    margin-left: 4px;
+    margin-right: 4px; }
+    .button-group .button-group-item:last-child {
+      margin-right: 0; }

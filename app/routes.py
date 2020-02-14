@@ -125,7 +125,31 @@ def index():
     import_files = CustomerImportFile.query.all()
     customers = Customer.query.all()
 
-    return render_template('index.html', title='Home', form=form, import_files=import_files, customers=customers)
+    customer_personal_loan_offers = [c.personal_loan_offer for c in customers]
+    bar_chart_data = personal_loan_offers_bar_chart_data(customer_personal_loan_offers)
+
+    accurate_preds = bar_chart_data['accepted_predicted_to_accept'] + bar_chart_data['declined_predicted_to_decline']
+    inaccurate_preds = bar_chart_data['accepted_predicted_to_decline'] + bar_chart_data['declined_predicted_to_accept']
+    accuracy_pie_data = [accurate_preds, inaccurate_preds]
+
+    line_chart_data = {'labels': [], 'data': []}
+    min_prob = 92
+    low_prob_count = PersonalLoanOffer.query.filter(PersonalLoanOffer.prediction_probability < min_prob).count()
+    line_chart_data['labels'].append("< " + str(min_prob))
+    line_chart_data['data'].append(low_prob_count)
+
+    for i in range(min_prob, 101, 2):
+        percent = float(i)
+        count = PersonalLoanOffer.query.filter_by(prediction_probability=percent).count()
+        line_chart_data['labels'].append(str(i))
+        line_chart_data['data'].append(count)
+
+    return render_template('index.html', title='Home', form=form, import_files=import_files, customers=customers,
+                           jupyter_url=app.config['PERSONAL_LOAN_OFFERS_JUPYTER_URL'],
+                           bar_chart_data=bar_chart_data,
+                           accuracy_pie_data=accuracy_pie_data,
+                           line_chart_data=line_chart_data
+                           )
 
 
 @app.route('/customer_import_file/<int:customer_import_file_id>', methods=['GET'])
