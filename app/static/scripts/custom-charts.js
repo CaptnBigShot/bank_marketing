@@ -49,7 +49,7 @@ function createPieChartForPersonalLoanOffers(elementId, data) {
     let accuracyPct = ((accurateCount / (accurateCount + inaccurateCount)) * 100).toFixed(2);
 
     return new Chart(document.getElementById(elementId), {
-        "type":"pie",
+        "type":"doughnut",
         "data": {
             "labels": ["Accurate", "Inaccurate"],
             "datasets": [{
