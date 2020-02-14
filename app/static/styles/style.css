@@ -1,5 +1,6 @@
 a:hover {
     text-decoration: none;
+	color: #3b3b3b;
 }
 
 a {
@@ -41,9 +42,9 @@ a {
 	 white-space: nowrap;
 }
  .button-primary:hover, .button-primary:active, .button-primary:focus, .button-primary.focus {
-	 background-color: #feffff;
-	 border-color: #000;
-	 color: #000;
+	 background-color: #000;
+	 border-color: #ffffff;
+	 color: #ffffff;
 	 text-decoration: none;
 }
  .button-primary.small {
@@ -138,3 +139,7 @@ a {
     margin-right: 4px; }
     .button-group .button-group-item:last-child {
       margin-right: 0; }
+
+.progress-bar-primary {
+	background: linear-gradient(100deg, #2e22a8, #c168d0);
+}

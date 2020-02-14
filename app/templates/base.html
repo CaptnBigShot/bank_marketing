@@ -15,18 +15,13 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('index') }}">Bank Marketing</a>
-
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('index') }}">Home</a>
-                    </li>
-                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('view_personal_loan_offers') }}">Personal Loan Offers</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav ml-auto">
@@ -42,8 +37,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container">
-        <div style="padding-top:20px">
+    <div class="container mt-3">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
             {% for message in messages %}
@@ -54,7 +48,6 @@
 
         {# application content needs to be provided in the app_content block #}
         {% block app_content %}{% endblock %}
-        </div>
     </div>
 {% endblock %}
 

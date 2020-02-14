@@ -186,39 +186,6 @@ def delete_customer(customer_id):
     return jsonify({'msg': 'Customer Deleted.'})
 
 
-@app.route('/personal_loan_offers', methods=['GET'])
-@login_required
-def view_personal_loan_offers():
-    customers = Customer.query.all()
-    customers_json = customers_to_json(customers)
-
-    customer_personal_loan_offers = [c.personal_loan_offer for c in customers]
-    bar_chart_data = personal_loan_offers_bar_chart_data(customer_personal_loan_offers)
-
-    accurate_preds = bar_chart_data['accepted_predicted_to_accept'] + bar_chart_data['declined_predicted_to_decline']
-    inaccurate_preds = bar_chart_data['accepted_predicted_to_decline'] + bar_chart_data['declined_predicted_to_accept']
-    accuracy_pie_data = [accurate_preds, inaccurate_preds]
-
-    line_chart_data = {'labels': [], 'data': []}
-    min_prob = 92
-    low_prob_count = PersonalLoanOffer.query.filter(PersonalLoanOffer.prediction_probability < min_prob).count()
-    line_chart_data['labels'].append("< " + str(min_prob))
-    line_chart_data['data'].append(low_prob_count)
-
-    for i in range(min_prob, 101, 2):
-        percent = float(i)
-        count = PersonalLoanOffer.query.filter_by(prediction_probability=percent).count()
-        line_chart_data['labels'].append(str(i))
-        line_chart_data['data'].append(count)
-
-    return render_template('personal_loan_offers.html', title='Personal Loan Offers',
-                           customers=customers_json,
-                           jupyter_url=app.config['PERSONAL_LOAN_OFFERS_JUPYTER_URL'],
-                           bar_chart_data=bar_chart_data,
-                           accuracy_pie_data=accuracy_pie_data,
-                           line_chart_data=line_chart_data)
-
-
 @app.route('/api/v1/personal_loan_offer/<int:personal_loan_offer_id>', methods=["POST"])
 def update_personal_loan_offer(personal_loan_offer_id):
     personal_loan_offer = PersonalLoanOffer.query.get(personal_loan_offer_id)

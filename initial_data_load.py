@@ -31,7 +31,7 @@ def load_training_data():
     df['PersonalLoan'] = target
 
     # Create file in DB
-    import_file = CustomerImportFile(name=training_data_file)
+    import_file = CustomerImportFile(name="initial_data.csv")
     db.session.add(import_file)
 
     # Load each customer & prediction into the DB

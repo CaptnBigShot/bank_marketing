@@ -38,7 +38,7 @@
                     {{ customer_import_file.personal_loan_offers_with_response() }}%<br>
                     <small class="text-muted">Customers Responded to Offer</small>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="{{ customer_import_file.personal_loan_offers_with_response() }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ customer_import_file.personal_loan_offers_with_response() }}%;"></div>
+                        <div class="progress-bar progress-bar-primary" role="progressbar" aria-valuenow="{{ customer_import_file.personal_loan_offers_with_response() }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ customer_import_file.personal_loan_offers_with_response() }}%;"></div>
                     </div>
                 </li>
             </ul>
@@ -77,7 +77,6 @@
             </table>
         </div>
     </div>
-
 
 {% endblock %}
 

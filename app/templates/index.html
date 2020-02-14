@@ -4,29 +4,29 @@
 
     <div class="row">
         <div class="col-md-12">
-            <h2>Bank Marketing</h2>
+            <h2>Dashboard</h2>
         </div>
     </div>
 
     <div class="row mt-2 mb-2">
         <div class="col-md-12">
             <div class="header-bar">
-                <h2 class="section-header">Customer Import Files</h2>
+                <div class="row">
+                    <div class="col-8">
+                        <h2 class="section-header">Customer Import Files</h2>
+                    </div>
+                    <div class="col-4">
+                        <a class="float-right" data-toggle="modal" href="#" data-target="#addCustomersModal"> <i class="fa fa-upload"></i> Import Customers </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-12">
-            <button type="button" class="btn button-primary float-right" data-toggle="modal" data-target="#addCustomersModal">Import Customers</button>
-        </div>
-    </div>
-
-
     <!-- Listing of Customer Import Files -->
     <div class="row mt-2 mb-2">
         <div class="col-md-12">
-            <table class="table table-hover">
+            <table class="table table-hover table-bordered">
                 <thead>
                     <tr>
                         <th>File Name</th>
@@ -45,7 +45,7 @@
                                 <!-- Actions -->
                                 <div class="btn-group">
                                     <div class="dropdown">
-                                        <button class="button-primary small">
+                                        <button class="button-primary btn-small small">
                                             <i class="fa fa-chevron-down"></i>
                                         </button>
                                         <div class="dropdown-content">
@@ -146,14 +146,15 @@
     <div class="row mt-2 mb-2">
         <div class="col-md-12">
             <div class="header-bar">
-                <h2 class="section-header">Personal Loan Offers</h2>
+                <div class="row">
+                    <div class="col-8">
+                        <h2 class="section-header">Personal Loan Offers</h2>
+                    </div>
+                    <div class="col-4">
+                        <a class="float-right" href="{{ jupyter_url }}" target="_blank"> <i class="fa fa-code"></i> Jupyter Notebook  </a>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-12">
-            <a class="button-primary float-right" href="{{ jupyter_url }}" target="_blank">Jupyter Notebook</a>
         </div>
     </div>
 

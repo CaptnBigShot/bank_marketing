@@ -17,7 +17,7 @@ function createStackedBarChartForPersonalLoanOffers(elementId, data) {
             data: declinedData
         }, {
             label: 'No Response',
-            backgroundColor: 'rgba(153, 102, 255, 0.4)',
+            backgroundColor: 'rgba(36,97,168,0.4)',
             data: noResponseData
         }]
     };
