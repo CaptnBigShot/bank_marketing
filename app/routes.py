@@ -189,6 +189,7 @@ def view_personal_loan_offers():
 
     return render_template('personal_loan_offers.html', title='Personal Loan Offers',
                            customers=customers_json,
+                           jupyter_url=app.config['PERSONAL_LOAN_OFFERS_JUPYTER_URL'],
                            bar_chart_data=bar_chart_data,
                            accuracy_pie_data=accuracy_pie_data,
                            line_chart_data=line_chart_data)

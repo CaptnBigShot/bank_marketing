@@ -3,10 +3,13 @@
 {% block app_content %}
 
     <div class="row mt-4">
-        <div class="col-md-12">
+        <div class="col-md-8">
             <h4 class="">Customer Import File</h4>
             <h5 class="text-muted">{{ customer_import_file.name }}</h5>
             <h6 class="text-muted">{{ customer_import_file.timestamp_local().strftime('%m/%d/%Y %I:%M %p') }}</h6>
+        </div>
+        <div class="col-md-4">
+            <a class="btn button-primary float-right" href="{{ url_for('delete_customer_import_file', customer_import_file_id=customer_import_file.id) }}">Delete</a>
         </div>
     </div>
 
@@ -20,9 +23,29 @@
 
     <!-- Charts -->
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-4 mt-2">
+            <ul class="list-group">
+                <li class="list-group-item list-group-item-heading">Overview</li>
+                <li class="list-group-item">
+                    {{ customer_import_file.customers_count() }}<br>
+                    <small class="text-muted">Total Customers</small>
+                </li>
+                <li class="list-group-item">
+                    {{ customer_import_file.count_predicted_to_accept_personal_loan() }}<br>
+                    <small class="text-muted">Predicted to Accept</small>
+                </li>
+                <li class="list-group-item">
+                    {{ customer_import_file.personal_loan_offers_with_response() }}%<br>
+                    <small class="text-muted">Customers Responded to Offer</small>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="{{ customer_import_file.personal_loan_offers_with_response() }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ customer_import_file.personal_loan_offers_with_response() }}%;"></div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-8">
             <div class="chart-container">
-                <canvas id="stackedBarChart" height="75"></canvas>
+                <canvas id="stackedBarChart" height="125"></canvas>
             </div>
         </div>
     </div>

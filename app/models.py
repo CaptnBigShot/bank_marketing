@@ -81,6 +81,22 @@ class CustomerImportFile(db.Model):
     def customer_personal_loan_offers(self):
         return [c.personal_loan_offer for c in self.customers]
 
+    def count_predicted_to_accept_personal_loan(self):
+        pred_to_accept = [p for p in self.customer_personal_loan_offers() if p.predicted_response == 'Accepted']
+        return len(pred_to_accept)
+
+    def personal_loan_offer_prediction_accuracy(self):
+        offers = self.customer_personal_loan_offers()
+        accurate_predictions = [p for p in offers if p.predicted_response == p.actual_response]
+        accuracy = round(((float(len(accurate_predictions)) / float(len(offers))) * 100), 2)
+        return accuracy
+
+    def personal_loan_offers_with_response(self):
+        offers = self.customer_personal_loan_offers()
+        offers_with_response = [p for p in offers if p.actual_response != ""]
+        percent_with_response = round(((float(len(offers_with_response)) / float(len(offers))) * 100), 2)
+        return percent_with_response
+
 
 class PersonalLoanOffer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
