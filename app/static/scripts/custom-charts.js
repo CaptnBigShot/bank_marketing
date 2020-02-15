@@ -1,24 +1,12 @@
-function createStackedBarChartForPersonalLoanOffers(elementId, data) {
+function createBarChartForAcceptedPersonalLoanOffers(elementId, data) {
     let ctx = document.getElementById(elementId).getContext('2d');
-
     let acceptedData = [data['accepted_predicted_to_accept'], data['accepted_predicted_to_decline']];
-    let declinedData = [data['declined_predicted_to_accept'], data['declined_predicted_to_decline']];
-    let noResponseData = [data['no_response_predicted_to_accept'], data['no_response_predicted_to_decline']];
-
     let barChartData = {
         labels: ['Predicted to Accept', 'Predicted to Decline'],
         datasets: [{
             label: 'Accepted',
-            backgroundColor: 'rgba(78,192,148,0.4)',
+            backgroundColor: 'rgba(192,111,87,0.4)',
             data: acceptedData
-        }, {
-            label: 'Declined',
-            backgroundColor: 'rgba(255, 99, 132, 0.4)',
-            data: declinedData
-        }, {
-            label: 'No Response',
-            backgroundColor: 'rgba(36,97,168,0.4)',
-            data: noResponseData
         }]
     };
 
@@ -26,17 +14,56 @@ function createStackedBarChartForPersonalLoanOffers(elementId, data) {
         type: 'horizontalBar',
         data: barChartData,
         options: {
-            scales: {
-                xAxes: [{
-                    stacked: true
-                }],
-                yAxes: [{
-                    stacked: true
-                }]
-            },
             title: {
                 display: true,
-                text: 'Customer Personal Loan Offer Predictions Segmented By Their Actual Responses'
+                text: 'Customers That Accepted a Personal Loan Offer Segmented By Their Predictions'
+            },
+            scales: {
+                xAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+            legend: {
+                display: false
+            }
+        }
+    });
+}
+
+function createBarChartForPersonalLoanOffersPredictedToBeAccepted(elementId, data) {
+    let ctx = document.getElementById(elementId).getContext('2d');
+    let dataset = [data['accepted_predicted_to_accept'], data['declined_predicted_to_accept'], data['no_response_predicted_to_accept']];
+    let barChartData = {
+        labels: ['Accepted', 'Declined', 'No Response'],
+        datasets: [{
+            data: dataset,
+            backgroundColor:[
+                    "rgba(78,192,148,0.4)",
+                    "rgba(255, 99, 132, 0.4)",
+                    "rgba(124, 99, 132, 0.4)",
+                ]
+        }],
+    };
+
+    return new Chart(ctx, {
+        type: 'horizontalBar',
+        data: barChartData,
+        options: {
+            title: {
+                display: true,
+                text: 'Customers Predicted to Accept a Personal Loan Offer Segmented By Their Actual Responses'
+            },
+            scales: {
+                xAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+            legend: {
+                display: false
             }
         }
     });
@@ -89,7 +116,7 @@ function createLineChartForPersonalLoanOffers(elementId, chartInfo) {
 				responsive: true,
 				title: {
 					display: true,
-					text: 'Number of Predictions Given Probability/Confidence Percentages'
+					text: 'Confidence of Prediction Algorithm'
 				},
 				tooltips: {
 					mode: 'index',
@@ -114,7 +141,10 @@ function createLineChartForPersonalLoanOffers(elementId, chartInfo) {
 							labelString: 'Number Of Predictions'
 						}
 					}]
-				}
+				},
+                legend: {
+                display: false
+            }
 			}
 		};
 

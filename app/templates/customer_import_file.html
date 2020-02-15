@@ -13,7 +13,7 @@
         </div>
     </div>
 
-    <div class="row mt-4 mb-2">
+    <div class="row mt-2 mb-2">
         <div class="col-md-12">
             <div class="header-bar">
                 <h2 class="section-header">Personal Loan Offers</h2>
@@ -85,7 +85,7 @@
     <script>
         let barChartData = {{ bar_chart_data|tojson|safe }}
         let stackedBarChartId = 'stackedBarChart';
-        createStackedBarChartForPersonalLoanOffers(stackedBarChartId, barChartData)
+        createBarChartForPersonalLoanOffersPredictedToBeAccepted(stackedBarChartId, barChartData)
     </script>
 
     <script>

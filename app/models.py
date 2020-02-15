@@ -94,7 +94,7 @@ class CustomerImportFile(db.Model):
     def personal_loan_offers_with_response(self):
         offers = self.customer_personal_loan_offers()
         offers_with_response = [p for p in offers if p.actual_response != ""]
-        percent_with_response = round(((float(len(offers_with_response)) / float(len(offers))) * 100), 2)
+        percent_with_response = round(((float(len(offers_with_response)) / float(len(offers))) * 100))
         return percent_with_response
 
 
