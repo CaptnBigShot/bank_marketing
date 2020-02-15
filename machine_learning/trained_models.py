@@ -14,15 +14,13 @@ class PersonalLoanPredictionModel(object):
     def _load_model(self):
         model_pkl = open(self.MODEL_FILE_NAME, 'rb')
         model = pickle.load(model_pkl)
-        print("Loaded Random Forest Classifier model :: ", model)
-
+        # print("Loaded Random Forest Classifier model :: ", model)
         return model
 
     def _load_scaler(self):
         scaler_pkl = open(self.SCALER_FILE_NAME, 'rb')
         scaler = pickle.load(scaler_pkl)
-        print("Loaded model scaler :: ", scaler)
-
+        # print("Loaded model scaler :: ", scaler)
         return scaler
 
     def predict_customer_responses(self, data_frame):
