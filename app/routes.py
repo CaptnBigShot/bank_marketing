@@ -12,27 +12,6 @@ from machine_learning.trained_models import PersonalLoanPredictionModel
 personal_loan_prediction_model = PersonalLoanPredictionModel()
 
 
-def customers_to_json(customers):
-    customers_json = []
-    for c in customers:
-        customer_json = {
-            'id': c.id,
-            'timestamp': c.timestamp_local().strftime('%m/%d/%Y %I:%M %p'),
-            'income': c.income,
-            'education': c.education_desc(),
-            'cc_avg': str(c.cc_avg),
-            'family': c.family,
-            'cd_account': c.cd_account,
-            'age': c.age,
-            'personal_loan_offer_id': c.personal_loan_offer.id,
-            'personal_loan_offer_prediction': c.personal_loan_offer.predicted_response,
-            'personal_loan_offer_prediction_probability': str(c.personal_loan_offer.prediction_probability),
-            'personal_loan_offer_response': c.personal_loan_offer.actual_response,
-        }
-        customers_json.append(customer_json)
-    return customers_json
-
-
 def personal_loan_offers_bar_chart_data(personal_loan_offers):
     data = {
         'accepted_predicted_to_accept': 0,
@@ -66,6 +45,22 @@ def personal_loan_offers_bar_chart_data(personal_loan_offers):
             data['no_response_predicted_to_decline'] += 1
 
     return data
+
+
+def personal_loan_offers_probability_line_chart_data():
+    line_chart_data = {'labels': [], 'data': []}
+    min_prob = 92
+    low_prob_count = PersonalLoanOffer.query.filter(PersonalLoanOffer.prediction_probability < min_prob).count()
+    line_chart_data['labels'].append("< " + str(min_prob))
+    line_chart_data['data'].append(low_prob_count)
+
+    for i in range(min_prob, 101, 2):
+        percent = float(i)
+        count = PersonalLoanOffer.query.filter_by(prediction_probability=percent).count()
+        line_chart_data['labels'].append(str(i))
+        line_chart_data['data'].append(count)
+
+    return line_chart_data
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -132,17 +127,7 @@ def index():
     inaccurate_preds = bar_chart_data['accepted_predicted_to_decline'] + bar_chart_data['declined_predicted_to_accept']
     accuracy_pie_data = [accurate_preds, inaccurate_preds]
 
-    line_chart_data = {'labels': [], 'data': []}
-    min_prob = 92
-    low_prob_count = PersonalLoanOffer.query.filter(PersonalLoanOffer.prediction_probability < min_prob).count()
-    line_chart_data['labels'].append("< " + str(min_prob))
-    line_chart_data['data'].append(low_prob_count)
-
-    for i in range(min_prob, 101, 2):
-        percent = float(i)
-        count = PersonalLoanOffer.query.filter_by(prediction_probability=percent).count()
-        line_chart_data['labels'].append(str(i))
-        line_chart_data['data'].append(count)
+    line_chart_data = personal_loan_offers_probability_line_chart_data()
 
     return render_template('index.html', title='Home', form=form, import_files=import_files, customers=customers,
                            jupyter_url=app.config['PERSONAL_LOAN_OFFERS_JUPYTER_URL'],
@@ -157,7 +142,7 @@ def index():
 def view_customer_import_file(customer_import_file_id):
     customer_import_file = CustomerImportFile.query.get(customer_import_file_id)
     customers = customer_import_file.customers
-    customers_json = customers_to_json(customers)
+    customers_json = Customer.customers_to_json(customers)
 
     customer_personal_loan_offers = customer_import_file.customer_personal_loan_offers()
     bar_chart_data = personal_loan_offers_bar_chart_data(customer_personal_loan_offers)

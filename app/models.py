@@ -62,6 +62,27 @@ class Customer(db.Model):
     def timestamp_local(self):
         return utc_to_local(self.timestamp)
 
+    @staticmethod
+    def customers_to_json(customers):
+        customers_json = []
+        for c in customers:
+            customer_json = {
+                'id': c.id,
+                'timestamp': c.timestamp_local().strftime('%m/%d/%Y %I:%M %p'),
+                'income': c.income,
+                'education': c.education_desc(),
+                'cc_avg': str(c.cc_avg),
+                'family': c.family,
+                'cd_account': c.cd_account,
+                'age': c.age,
+                'personal_loan_offer_id': c.personal_loan_offer.id,
+                'personal_loan_offer_prediction': c.personal_loan_offer.predicted_response,
+                'personal_loan_offer_prediction_probability': str(c.personal_loan_offer.prediction_probability),
+                'personal_loan_offer_response': c.personal_loan_offer.actual_response,
+            }
+            customers_json.append(customer_json)
+        return customers_json
+
 
 class CustomerImportFile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
