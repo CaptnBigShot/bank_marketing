@@ -15,7 +15,7 @@
 6. Install requirements: ```pip3 install -r requirements.txt```
 7. Create the database: ```flask db init```
 8. Run database migrations: ```flask db upgrade```
-9. Run initial data load: ```python3 initial_data_load.py```
+9. Load DB seeds: ```flask seed run```
 10. Run the app: ```flask run```
 11. In your web browser, navigate to URL http://127.0.0.1:5000/
 12. Log in using the following credentials:

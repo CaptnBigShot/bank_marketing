@@ -138,19 +138,34 @@
         window.operateEvents = {
             'click .delete': function (e, value, row, index) {
                 let customer_id = row['id'];
+                let auth_token = {{ TODO }}
 
-                $.post('/api/v1/delete_customer/' + customer_id, {
-                }).done(function(response) {
-                    $table.bootstrapTable('remove', {
-                        field: 'id',
-                        values: [row.id]
-                    })
-                }).fail(function() {
-                    row['id'] = "Error: Could not contact server.";
-                    $table.bootstrapTable('updateRow', {
-                        index: index,
-                        row: row
-                    })
+                $.ajax({
+                    url: "/api/customers/" + customer_id,
+                    type: "DELETE",
+                    headers: { Authorization: "Bearer " + auth_token },
+                    error: function(err) {
+                        switch (err.status) {
+                            case 400:
+                                alert("400: Bad API request.");
+                                break;
+                            case 401:
+                                alert("401: Unauthorized API call.");
+                                break;
+                            case 403:
+                                alert("403: Forbidden API call.");
+                                break;
+                            default:
+                                alert(err.status + ": Unknown error communicating with API server.");
+                                break;
+                        }
+                    },
+                    success: function(data) {
+                        $table.bootstrapTable('remove', {
+                            field: 'id',
+                            values: [row.id]
+                        })
+                    }
                 });
             },
             'click .save-response': function (e, value, row, index) {

@@ -3,6 +3,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask, current_app
 from flask_sqlalchemy import SQLAlchemy
+from flask_seeder import FlaskSeeder
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
@@ -11,6 +12,7 @@ from config import Config
 
 db = SQLAlchemy()
 migrate = Migrate()
+seeder = FlaskSeeder()
 bootstrap = Bootstrap()
 login = LoginManager()
 login.login_view = 'auth.login'
@@ -22,6 +24,7 @@ def create_app(config_class=Config):
 
     db.init_app(app)
     migrate.init_app(app, db)
+    seeder.init_app(app, db)
     login.init_app(app)
     bootstrap.init_app(app)
 
@@ -36,6 +39,9 @@ def create_app(config_class=Config):
 
     from app.customer_import_files import bp as customer_import_files_bp
     app.register_blueprint(customer_import_files_bp, url_prefix='/customer_import_files')
+
+    from app.api import bp as api_bp
+    app.register_blueprint(api_bp, url_prefix='/api')
 
     if not app.debug and not app.testing:
         if not os.path.exists('logs'):
