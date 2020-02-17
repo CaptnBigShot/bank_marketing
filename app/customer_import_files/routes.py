@@ -2,12 +2,12 @@ import os
 import pandas as pd
 from flask import render_template, flash, redirect, url_for, request, jsonify
 from werkzeug.utils import secure_filename
-from app import app, db
-from app.forms import LoginForm, CustomersForm
-from flask_login import current_user, login_user, logout_user, login_required
-from app.models import User, Customer, CustomerImportFile, PersonalLoanOffer
-from werkzeug.urls import url_parse
+from app import current_app, db
+from app.customer_import_files.forms import CustomersForm
+from flask_login import login_required
+from app.models import Customer, CustomerImportFile, PersonalLoanOffer
 from machine_learning.trained_models import PersonalLoanPredictionModel
+from app.customer_import_files import bp
 
 personal_loan_prediction_model = PersonalLoanPredictionModel()
 
@@ -63,8 +63,8 @@ def personal_loan_offers_probability_line_chart_data():
     return line_chart_data
 
 
-@app.route('/', methods=['GET', 'POST'])
-@app.route('/index', methods=['GET', 'POST'])
+@bp.route('/', methods=['GET', 'POST'])
+@bp.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
     form = CustomersForm()
@@ -72,7 +72,7 @@ def index():
         if form.customers_csv.data:
             # Save the file
             file_name = secure_filename(form.customers_csv.data.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+            file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], file_name)
             form.customers_csv.data.save(file_path)
 
             # Read the file
@@ -115,7 +115,7 @@ def index():
             os.remove(file_path)
 
         flash('Customers have been uploaded.')
-        return redirect(url_for('view_customer_import_file', customer_import_file_id=import_file.id))
+        return redirect(url_for('customer_import_files.show', customer_import_file_id=import_file.id))
 
     import_files = CustomerImportFile.query.all()
     customers = Customer.query.all()
@@ -129,17 +129,17 @@ def index():
 
     line_chart_data = personal_loan_offers_probability_line_chart_data()
 
-    return render_template('index.html', title='Home', form=form, import_files=import_files, customers=customers,
-                           jupyter_url=app.config['PERSONAL_LOAN_OFFERS_JUPYTER_URL'],
+    return render_template('customer_import_files/index.html', title='Home', form=form, import_files=import_files, customers=customers,
+                           jupyter_url=current_app.config['PERSONAL_LOAN_OFFERS_JUPYTER_URL'],
                            bar_chart_data=bar_chart_data,
                            accuracy_pie_data=accuracy_pie_data,
                            line_chart_data=line_chart_data
                            )
 
 
-@app.route('/customer_import_file/<int:customer_import_file_id>', methods=['GET'])
+@bp.route('/<int:customer_import_file_id>', methods=['GET'])
 @login_required
-def view_customer_import_file(customer_import_file_id):
+def show(customer_import_file_id):
     customer_import_file = CustomerImportFile.query.get(customer_import_file_id)
     customers = customer_import_file.customers
     customers_json = Customer.customers_to_json(customers)
@@ -147,59 +147,17 @@ def view_customer_import_file(customer_import_file_id):
     customer_personal_loan_offers = customer_import_file.customer_personal_loan_offers()
     bar_chart_data = personal_loan_offers_bar_chart_data(customer_personal_loan_offers)
 
-    return render_template('customer_import_file.html', title='Customer Import File',
+    return render_template('customer_import_files/show.html', title='Customer Import File',
                            customer_import_file=customer_import_file,
                            customers=customers_json,
                            bar_chart_data=bar_chart_data)
 
 
-@app.route("/delete_customer_import_file/<int:customer_import_file_id>")
+@bp.route("/delete/<int:customer_import_file_id>")
 @login_required
-def delete_customer_import_file(customer_import_file_id):
+def delete(customer_import_file_id):
     import_file = CustomerImportFile.query.get(customer_import_file_id)
     db.session.delete(import_file)
     db.session.commit()
     flash('Deleted customer import file.')
-    return redirect(url_for('index'))
-
-
-@app.route('/api/v1/delete_customer/<int:customer_id>', methods=["POST"])
-def delete_customer(customer_id):
-    customer = Customer.query.get(customer_id)
-    db.session.delete(customer)
-    db.session.commit()
-    return jsonify({'msg': 'Customer Deleted.'})
-
-
-@app.route('/api/v1/personal_loan_offer/<int:personal_loan_offer_id>', methods=["POST"])
-def update_personal_loan_offer(personal_loan_offer_id):
-    personal_loan_offer = PersonalLoanOffer.query.get(personal_loan_offer_id)
-    actual_response = request.form['actual_response']
-    personal_loan_offer.actual_response = actual_response
-    db.session.commit()
-    return jsonify(id=personal_loan_offer.id, customer_id=personal_loan_offer.customer_id,
-                   actual_response=actual_response)
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user is None or not user.check_password(form.password.data):
-            flash('Invalid username or password')
-            return redirect(url_for('login'))
-        login_user(user, remember=form.remember_me.data)
-        next_page = request.args.get('next')
-        if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('index')
-        return redirect(next_page)
-    return render_template('login.html', title='Log In', form=form)
-
-
-@app.route('/logout')
-def logout():
-    logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('customer_import_files.index'))
