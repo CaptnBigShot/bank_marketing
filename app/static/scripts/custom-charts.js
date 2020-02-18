@@ -97,57 +97,56 @@ function createPieChartForPersonalLoanOffers(elementId, data) {
 }
 
 function createLineChartForPersonalLoanOffers(elementId, chartInfo) {
-        let labels = chartInfo['labels'];
-        let data = chartInfo['data'];
-
-		var config = {
-			type: 'line',
-			data: {
-				labels: labels,
-				datasets: [{
-					label: 'Prediction',
-					backgroundColor: 'rgba(41,148,192,0.4)',
-					borderColor: 'rgba(41,148,192,0.4)',
-					data: data,
-					fill: true,
-				}]
-			},
-			options: {
-				responsive: true,
-				title: {
-					display: true,
-					text: 'Confidence of Prediction Algorithm'
-				},
-				tooltips: {
-					mode: 'index',
-					intersect: false,
-				},
-				hover: {
-					mode: 'nearest',
-					intersect: true
-				},
-				scales: {
-					xAxes: [{
-						display: true,
-						scaleLabel: {
-							display: true,
-							labelString: 'Prediction Probability/Confidence (%)'
-						}
-					}],
-					yAxes: [{
-						display: true,
-						scaleLabel: {
-							display: true,
-							labelString: 'Number Of Predictions'
-						}
-					}]
-				},
-                legend: {
+    let labels = chartInfo['labels'];
+    let data = chartInfo['data'];
+    let config = {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Prediction',
+                backgroundColor: 'rgba(41,148,192,0.4)',
+                borderColor: 'rgba(41,148,192,0.4)',
+                data: data,
+                fill: true,
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Confidence of Prediction Algorithm'
+            },
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Prediction Probability/Confidence (%)'
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Number Of Predictions'
+                    }
+                }]
+            },
+            legend: {
                 display: false
             }
-			}
-		};
+        }
+    };
 
-		let ctx = document.getElementById(elementId).getContext('2d');
+    let ctx = document.getElementById(elementId).getContext('2d');
 		return new Chart(ctx, config);
 }
