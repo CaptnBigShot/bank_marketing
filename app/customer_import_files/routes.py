@@ -1,13 +1,14 @@
 import os
 import pandas as pd
-from flask import render_template, flash, redirect, url_for, request, jsonify
+from flask import render_template, flash, redirect, url_for
+from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 from app import current_app, db
 from app.customer_import_files.forms import CustomersForm
-from flask_login import login_required
 from app.models import Customer, CustomerImportFile, PersonalLoanOffer
-from machine_learning.trained_models import PersonalLoanPredictionModel
 from app.customer_import_files import bp
+from machine_learning.trained_models import PersonalLoanPredictionModel
+from app.api.tokens import get_token_for_user
 
 personal_loan_prediction_model = PersonalLoanPredictionModel()
 
@@ -147,9 +148,13 @@ def show(customer_import_file_id):
     customer_personal_loan_offers = customer_import_file.customer_personal_loan_offers()
     bar_chart_data = personal_loan_offers_bar_chart_data(customer_personal_loan_offers)
 
+    # Get API token for ajax requests
+    user_auth_token = get_token_for_user(current_user)
+
     return render_template('customer_import_files/show.html', title='Customer Import File',
                            customer_import_file=customer_import_file,
                            customers=customers_json,
+                           user_auth_token=user_auth_token,
                            bar_chart_data=bar_chart_data)
 
 

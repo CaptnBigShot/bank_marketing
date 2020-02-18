@@ -7,9 +7,14 @@ from app.api.auth import basic_auth, token_auth
 @bp.route('/tokens', methods=['POST'])
 @basic_auth.login_required
 def get_token():
-    token = g.current_user.get_token()
-    db.session.commit()
+    token = get_token_for_user(g.current_user)
     return jsonify({'token': token})
+
+
+def get_token_for_user(user):
+    token = user.get_token()
+    db.session.commit()
+    return token
 
 
 @bp.route('/tokens', methods=['DELETE'])

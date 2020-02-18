@@ -6,12 +6,6 @@ from app.api.auth import token_auth
 from app.api.errors import bad_request
 
 
-@bp.route('/customers/<int:id>', methods=['GET'])
-@token_auth.login_required
-def get_customer(id):
-    return jsonify({'age': Customer.query.get_or_404(id).age})
-
-
 @bp.route('/customers/<int:id>', methods=['DELETE'])
 @token_auth.login_required
 def delete(id):

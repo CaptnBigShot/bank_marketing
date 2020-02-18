@@ -135,10 +135,10 @@
         }
 
         // Act on button clicks
+        let auth_token = "{{ user_auth_token }}";
         window.operateEvents = {
             'click .delete': function (e, value, row, index) {
                 let customer_id = row['id'];
-                let auth_token = {{ TODO }}
 
                 $.ajax({
                     url: "/api/customers/" + customer_id,
@@ -147,7 +147,7 @@
                     error: function(err) {
                         switch (err.status) {
                             case 400:
-                                alert("400: Bad API request.");
+                                alert("400: Bad API call.");
                                 break;
                             case 401:
                                 alert("401: Unauthorized API call.");
@@ -159,6 +159,7 @@
                                 alert(err.status + ": Unknown error communicating with API server.");
                                 break;
                         }
+                        console.log(err)
                     },
                     success: function(data) {
                         $table.bootstrapTable('remove', {
@@ -171,21 +172,39 @@
             'click .save-response': function (e, value, row, index) {
                 let personal_loan_offer_id = row['personal_loan_offer_id'];
                 let actual_response = document.getElementById("responseSelector" + personal_loan_offer_id).value;
+                let formData = { "actual_response": actual_response };
 
-                $.post('/api/v1/personal_loan_offer/' + personal_loan_offer_id, {
-                    actual_response: actual_response
-                }).done(function(response) {
-                    row['personal_loan_offer_response'] = actual_response;
-                    $table.bootstrapTable('updateRow', {
-                        index: index,
-                        row: row
-                    });
-                }).fail(function() {
-                    row['personal_loan_offer_response'] = "Error: Could not contact server.";
-                    $table.bootstrapTable('updateRow', {
-                        index: index,
-                        row: row
-                    })
+                $.ajax({
+                    url: "/api/personal_loan_offers/" + personal_loan_offer_id,
+                    type: "PUT",
+                    headers: { Authorization: "Bearer " + auth_token },
+                    dataType: "json",
+                    data: JSON.stringify(formData),
+                    contentType: "application/json",
+                    error: function(err) {
+                        switch (err.status) {
+                            case 400:
+                                alert("400: Bad API call.");
+                                break;
+                            case 401:
+                                alert("401: Unauthorized API call.");
+                                break;
+                            case 403:
+                                alert("403: Forbidden API call.");
+                                break;
+                            default:
+                                alert(err.status + ": Unknown error communicating with API server.");
+                                break;
+                        }
+                        console.log(err)
+                    },
+                    success: function(data) {
+                        row['personal_loan_offer_response'] = actual_response;
+                        $table.bootstrapTable('updateRow', {
+                            index: index,
+                            row: row
+                        });
+                    }
                 });
             },
         };
