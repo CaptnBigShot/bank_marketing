@@ -1,12 +1,10 @@
 function createBarChartForAcceptedPersonalLoanOffers(elementId, data) {
     let ctx = document.getElementById(elementId).getContext('2d');
-    let acceptedData = [data['accepted_predicted_to_accept'], data['accepted_predicted_to_decline']];
     let barChartData = {
         labels: ['Predicted to Accept', 'Predicted to Decline'],
         datasets: [{
-            label: 'Accepted',
-            backgroundColor: 'rgba(192,111,87,0.4)',
-            data: acceptedData
+            backgroundColor: 'rgba(192,79,36,0.4)',
+            data: data
         }]
     };
 
@@ -34,11 +32,10 @@ function createBarChartForAcceptedPersonalLoanOffers(elementId, data) {
 
 function createBarChartForPersonalLoanOffersPredictedToBeAccepted(elementId, data) {
     let ctx = document.getElementById(elementId).getContext('2d');
-    let dataset = [data['accepted_predicted_to_accept'], data['declined_predicted_to_accept'], data['no_response_predicted_to_accept']];
     let barChartData = {
         labels: ['Accepted', 'Declined', 'No Response'],
         datasets: [{
-            data: dataset,
+            data: data,
             backgroundColor:[
                     "rgba(78,192,148,0.4)",
                     "rgba(255, 99, 132, 0.4)",

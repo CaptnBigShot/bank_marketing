@@ -9,3 +9,4 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PERSONAL_LOAN_OFFERS_JUPYTER_URL = 'https://mybinder.org/v2/gh/CaptnBigShot/bank_marketing/master?filepath=machine_learning%2Fjupyter_personal_loan.ipynb'
     UPLOAD_FOLDER = 'uploads'
+    BOOTSTRAP_SERVE_LOCAL = True

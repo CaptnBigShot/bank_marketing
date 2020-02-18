@@ -21,7 +21,6 @@
         </div>
     </div>
 
-    <!-- Charts -->
     <div class="row mt-4">
         <div class="col-md-4 mt-2">
             <ul class="list-group">
@@ -38,7 +37,7 @@
                     {{ customer_import_file.personal_loan_offers_with_response() }}%<br>
                     <small class="text-muted">Customers Responded to Offer</small>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-primary" role="progressbar" aria-valuenow="{{ customer_import_file.personal_loan_offers_with_response() }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ customer_import_file.personal_loan_offers_with_response() }}%;"></div>
+                        <div class="progress-bar progress-bar-primary" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: {{ customer_import_file.personal_loan_offers_with_response() }}%;"></div>
                     </div>
                 </li>
             </ul>

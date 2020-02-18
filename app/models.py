@@ -8,6 +8,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login
 from machine_learning.trained_models import PersonalLoanPredictionModel
+from sqlalchemy import and_
 
 personal_loan_prediction_model = PersonalLoanPredictionModel()
 
@@ -121,23 +122,42 @@ class CustomerImportFile(db.Model):
     def customers_count(self):
         return len(self.customers)
 
-    def customer_personal_loan_offers(self):
-        return [c.personal_loan_offer for c in self.customers]
+    def personal_loan_offers(self):
+        offers = PersonalLoanOffer.query.filter(and_(
+            Customer.import_file == self,
+            PersonalLoanOffer.customer_id == Customer.id,
+        ))
+        return offers
+
+    def personal_loan_offers_to_be_accepted(self):
+        offers = PersonalLoanOffer.query.filter(and_(
+            Customer.import_file == self,
+            PersonalLoanOffer.customer_id == Customer.id,
+            PersonalLoanOffer.predicted_response == 'Accepted',
+        ))
+        return offers
 
     def count_predicted_to_accept_personal_loan(self):
-        pred_to_accept = [p for p in self.customer_personal_loan_offers() if p.predicted_response == 'Accepted']
-        return len(pred_to_accept)
+        return self.personal_loan_offers_to_be_accepted().count()
 
-    def personal_loan_offer_prediction_accuracy(self):
-        offers = self.customer_personal_loan_offers()
-        accurate_predictions = [p for p in offers if p.predicted_response == p.actual_response]
-        accuracy = round(((float(len(accurate_predictions)) / float(len(offers))) * 100), 2)
-        return accuracy
+    def response_counts_for_personal_loan_offers_to_be_accepted(self):
+        offers = self.personal_loan_offers_to_be_accepted()
+        accepted, declined, no_response = 0, 0, 0
+
+        for p in offers:
+            if p.actual_response == 'Accepted':
+                accepted += 1
+            elif p.actual_response == 'Declined':
+                declined += 1
+            else:
+                no_response += 1
+
+        return accepted, declined, no_response
 
     def personal_loan_offers_with_response(self):
-        offers = self.customer_personal_loan_offers()
+        offers = self.personal_loan_offers()
         offers_with_response = [p for p in offers if p.actual_response != ""]
-        percent_with_response = round(((float(len(offers_with_response)) / float(len(offers))) * 100), 2)
+        percent_with_response = round(((float(len(offers_with_response)) / float(offers.count())) * 100), 2)
         return percent_with_response
 
     @staticmethod
@@ -198,3 +218,47 @@ class PersonalLoanOffer(db.Model):
 
     def __repr__(self):
         return '<PersonalLoanOffer {} {}>'.format(self.id, self.customer_id)
+
+    @staticmethod
+    def prediction_accuracy_counts():
+        accurate = PersonalLoanOffer.query.filter(and_(
+            PersonalLoanOffer.actual_response != '',
+            PersonalLoanOffer.actual_response == PersonalLoanOffer.predicted_response
+        )).count()
+
+        inaccurate = PersonalLoanOffer.query.filter(and_(
+            PersonalLoanOffer.actual_response != '',
+            PersonalLoanOffer.actual_response != PersonalLoanOffer.predicted_response
+        )).count()
+
+        return accurate, inaccurate
+
+    @staticmethod
+    def prediction_counts_for_accepted_offers():
+        pred_to_accept = PersonalLoanOffer.query.filter(and_(
+            PersonalLoanOffer.actual_response == 'Accepted',
+            PersonalLoanOffer.predicted_response == 'Accepted'
+        )).count()
+
+        pred_to_decline = PersonalLoanOffer.query.filter(and_(
+            PersonalLoanOffer.actual_response == 'Accepted',
+            PersonalLoanOffer.predicted_response == 'Declined'
+        )).count()
+
+        return pred_to_accept, pred_to_decline
+
+    @staticmethod
+    def probability_line_chart_data():
+        line_chart_data = {'labels': [], 'data': []}
+        min_prob = 92
+        low_prob_count = PersonalLoanOffer.query.filter(PersonalLoanOffer.prediction_probability < min_prob).count()
+        line_chart_data['labels'].append("< " + str(min_prob))
+        line_chart_data['data'].append(low_prob_count)
+
+        for i in range(min_prob, 101, 2):
+            percent = float(i)
+            count = PersonalLoanOffer.query.filter_by(prediction_probability=percent).count()
+            line_chart_data['labels'].append(str(i))
+            line_chart_data['data'].append(count)
+
+        return line_chart_data
