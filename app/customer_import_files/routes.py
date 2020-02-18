@@ -99,6 +99,7 @@ def index():
     inaccurate_preds = bar_chart_data['accepted_predicted_to_decline'] + bar_chart_data['declined_predicted_to_accept']
     accuracy_pie_data = [accurate_preds, inaccurate_preds]
 
+    # Get line chart data
     line_chart_data = personal_loan_offers_probability_line_chart_data()
 
     return render_template('customer_import_files/index.html', title='Home', form=form, import_files=import_files,
