@@ -37,7 +37,7 @@
                 <tbody>
                     {% for import_file in import_files %}
                         <tr id="import_file{{ import_file.id }}">
-                            <th scope="row"><a href="{{ url_for('customer_import_files.show', customer_import_file_id=import_file.id) }}">{{ import_file.name }}</a></th>
+                            <th scope="row"><a href="{{ url_for('customer_import_files.show', id=import_file.id) }}">{{ import_file.name }}</a></th>
                             <td>{{ import_file.timestamp_local().strftime('%m/%d/%Y %I:%M %p') }}</td>
                             <td>{{ import_file.customers_count() }}</td>
                         </tr>

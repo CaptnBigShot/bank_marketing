@@ -1,5 +1,4 @@
 import os
-import pandas as pd
 from flask import render_template, flash, redirect, url_for
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
@@ -76,38 +75,8 @@ def index():
             file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], file_name)
             form.customers_csv.data.save(file_path)
 
-            # Read the file
-            df = pd.read_csv(file_path, delimiter='\t', header=0)
-
-            # Run predictions on customers
-            features = ['Income', 'Education', 'CCAvg', 'Family', 'CDAccount', 'Age']
-            df = personal_loan_prediction_model.predict_customer_responses(df[features].copy())
-
-            # Create file in DB
-            import_file = CustomerImportFile(name=file_name)
-            db.session.add(import_file)
-
-            # Load each customer & prediction into the DB
-            for idx, row in df.iterrows():
-                # Customer
-                income = int(row['Income'])
-                education = int(row['Education'])
-                cc_avg = float(row['CCAvg'])
-                family = int(row['Family'])
-                cd_account = bool(row['CDAccount'])
-                age = int(row['Age'])
-                customer = Customer(income=income, education=education,
-                                    cc_avg=cc_avg, family=family,
-                                    cd_account=cd_account, age=age, import_file=import_file)
-                db.session.add(customer)
-
-                # Personal Loan Offer Prediction
-                predicted_response = 'Accepted' if row['Prediction'] == 1 else 'Declined'
-                prediction_probability = float(row['PredictionProbability']) * 100
-                personal_loan_offer = PersonalLoanOffer(customer=customer, predicted_response=predicted_response,
-                                                        prediction_probability=prediction_probability,
-                                                        actual_response='')
-                db.session.add(personal_loan_offer)
+            # Process the file into the DB
+            import_file = CustomerImportFile.process_customer_import_file(file_path)
 
             # Save changes to DB
             db.session.commit()
@@ -116,52 +85,54 @@ def index():
             os.remove(file_path)
 
         flash('Customers have been uploaded.')
-        return redirect(url_for('customer_import_files.show', customer_import_file_id=import_file.id))
+        return redirect(url_for('customer_import_files.show', id=import_file.id))
 
     import_files = CustomerImportFile.query.all()
     customers = Customer.query.all()
 
+    # Get bar chart data
     customer_personal_loan_offers = [c.personal_loan_offer for c in customers]
     bar_chart_data = personal_loan_offers_bar_chart_data(customer_personal_loan_offers)
 
+    # Get pie chart data
     accurate_preds = bar_chart_data['accepted_predicted_to_accept'] + bar_chart_data['declined_predicted_to_decline']
     inaccurate_preds = bar_chart_data['accepted_predicted_to_decline'] + bar_chart_data['declined_predicted_to_accept']
     accuracy_pie_data = [accurate_preds, inaccurate_preds]
 
     line_chart_data = personal_loan_offers_probability_line_chart_data()
 
-    return render_template('customer_import_files/index.html', title='Home', form=form, import_files=import_files, customers=customers,
+    return render_template('customer_import_files/index.html', title='Home', form=form, import_files=import_files,
+                           customers=customers,
                            jupyter_url=current_app.config['PERSONAL_LOAN_OFFERS_JUPYTER_URL'],
                            bar_chart_data=bar_chart_data,
                            accuracy_pie_data=accuracy_pie_data,
-                           line_chart_data=line_chart_data
-                           )
+                           line_chart_data=line_chart_data)
 
 
-@bp.route('/<int:customer_import_file_id>', methods=['GET'])
+@bp.route('/<int:id>', methods=['GET'])
 @login_required
-def show(customer_import_file_id):
-    customer_import_file = CustomerImportFile.query.get(customer_import_file_id)
-    customers = customer_import_file.customers
-    customers_json = Customer.customers_to_json(customers)
+def show(id):
+    customer_import_file = CustomerImportFile.query.get(id)
+    customers = [c.to_dict() for c in customer_import_file.customers]
 
-    customer_personal_loan_offers = customer_import_file.customer_personal_loan_offers()
-    bar_chart_data = personal_loan_offers_bar_chart_data(customer_personal_loan_offers)
+    # Get bar chart data
+    personal_loan_offers = customer_import_file.customer_personal_loan_offers()
+    bar_chart_data = personal_loan_offers_bar_chart_data(personal_loan_offers)
 
     # Get API token for ajax requests
     user_auth_token = get_token_for_user(current_user)
 
     return render_template('customer_import_files/show.html', title='Customer Import File',
                            customer_import_file=customer_import_file,
-                           customers=customers_json,
+                           customers=customers,
                            user_auth_token=user_auth_token,
                            bar_chart_data=bar_chart_data)
 
 
-@bp.route("/delete/<int:customer_import_file_id>")
+@bp.route("/delete/<int:id>")
 @login_required
-def delete(customer_import_file_id):
-    import_file = CustomerImportFile.query.get(customer_import_file_id)
+def delete(id):
+    import_file = CustomerImportFile.query.get_or_404(id)
     db.session.delete(import_file)
     db.session.commit()
     flash('Deleted customer import file.')
