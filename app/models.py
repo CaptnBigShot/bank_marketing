@@ -55,12 +55,6 @@ def load_user(id):
     return User.query.get(int(id))
 
 
-def utc_to_local(utc_timestamp):
-    now_timestamp = time.time()
-    offset = datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp)
-    return utc_timestamp + offset
-
-
 class Customer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     income = db.Column(db.Integer)
@@ -87,13 +81,9 @@ class Customer(db.Model):
         else:
             return self.education
 
-    def timestamp_local(self):
-        return utc_to_local(self.timestamp)
-
     def to_dict(self):
         return {
             'id': self.id,
-            'timestamp': self.timestamp_local().strftime('%m/%d/%Y %I:%M %p'),
             'income': self.income,
             'education': self.education_desc(),
             'cc_avg': str(self.cc_avg),
@@ -117,7 +107,9 @@ class CustomerImportFile(db.Model):
         return '<CustomerImportFile {} {} {}>'.format(self.id, self.name, self.timestamp)
 
     def timestamp_local(self):
-        return utc_to_local(self.timestamp)
+        now_timestamp = time.time()
+        offset = datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp)
+        return self.timestamp + offset
 
     def customers_count(self):
         return len(self.customers)
