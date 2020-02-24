@@ -1,8 +1,9 @@
+import os
+import config
+import pandas as pd
 from flask_seeder import Seeder
 from app import db
 from app.models import CustomerImportFile
-import config
-import os
 
 
 class CustomerImportFileSeeder(Seeder):
@@ -11,5 +12,8 @@ class CustomerImportFileSeeder(Seeder):
         self.priority = 20
 
     def run(self):
-        training_data_file_path = os.path.join(config.basedir, 'machine_learning', 'personal_loan_data.csv')
-        CustomerImportFile.process_customer_import_file(training_data_file_path, process_actual_responses=True)
+        file_name = 'personal_loan_data.csv'
+        file_path = os.path.join(config.basedir, 'machine_learning', file_name)
+        df = pd.read_csv(file_path, delimiter='\t', header=0)
+        import_file = CustomerImportFile.process_customer_import_file(df, file_name, True)
+        db.session.add(import_file)

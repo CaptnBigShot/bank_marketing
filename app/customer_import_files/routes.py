@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 from flask import render_template, flash, redirect, url_for
 from flask_login import current_user, login_required
 from app import current_app, db
@@ -14,18 +15,21 @@ from app.api.tokens import get_token_for_user
 def index():
     form = CustomersForm()
     if form.validate_on_submit():
-        if form.customers_csv.data:
-            # Save the file
-            file_path = form.save_file(current_app.config['UPLOAD_FOLDER'])
+        # Save the file
+        file_path, file_name = form.save_file(current_app.config['UPLOAD_FOLDER'])
 
-            # Process the file into the DB
-            import_file = CustomerImportFile.process_customer_import_file(file_path)
+        # Read the file as a data frame
+        df = pd.read_csv(file_path, delimiter='\t', header=0)
 
-            # Save changes to DB
-            db.session.commit()
+        # Process the file
+        import_file = CustomerImportFile.process_customer_import_file(df=df, file_name=file_name)
 
-            # Delete the uploaded file
-            os.remove(file_path)
+        # Save changes to DB
+        db.session.add(import_file)
+        db.session.commit()
+
+        # Delete the uploaded file
+        os.remove(file_path)
 
         flash('Customers have been uploaded.')
         return redirect(url_for('customer_import_files.show', id=import_file.id))

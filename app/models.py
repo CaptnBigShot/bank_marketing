@@ -1,7 +1,6 @@
 import time
 import base64
 import os
-import pandas as pd
 from datetime import datetime, timedelta
 from flask import current_app
 from flask_login import UserMixin
@@ -153,27 +152,31 @@ class CustomerImportFile(db.Model):
         return percent_with_response
 
     @staticmethod
-    def process_customer_import_file(file_path, process_actual_responses=False):
-        # Read the file
-        df = pd.read_csv(file_path, delimiter='\t', header=0)
-
+    def process_customer_import_file(df, file_name, process_actual_responses=False):
         # Run predictions on customers
         features = ['Income', 'Education', 'CCAvg', 'Family', 'CDAccount', 'Age']
         df_predicted = personal_loan_prediction_model.predict_customer_responses(df[features].copy())
 
         # Include the actual responses if specified (do this AFTER running predictions)
         if process_actual_responses:
-            df_predicted.loc[:, 'ActualResponse'] = df['PersonalLoan'].apply(lambda x: "Accepted" if x == 1 else "Declined")
+            df_predicted.loc[:, 'ActualResponse'] = df['PersonalLoan'].apply(
+                lambda x: "Accepted" if x == 1 else "Declined")
         else:
             df_predicted['ActualResponse'] = ""
 
-        # Create file in DB
-        file_name = os.path.basename(file_path)
+        # Create the file object
         import_file = CustomerImportFile(name=file_name)
-        db.session.add(import_file)
 
-        # Load each customer & prediction into the DB
+        # Process each customer & prediction as objects
         for idx, row in df_predicted.iterrows():
+            # Personal Loan Offer
+            predicted_response = 'Accepted' if row['Prediction'] == 1 else 'Declined'
+            prediction_probability = float(row['PredictionProbability']) * 100
+            actual_response = row['ActualResponse']
+            personal_loan_offer = PersonalLoanOffer(predicted_response=predicted_response,
+                                                    prediction_probability=prediction_probability,
+                                                    actual_response=actual_response)
+
             # Customer
             income = int(row['Income'])
             education = int(row['Education'])
@@ -184,18 +187,8 @@ class CustomerImportFile(db.Model):
             customer = Customer(income=income, education=education,
                                 cc_avg=cc_avg, family=family,
                                 cd_account=cd_account, age=age,
+                                personal_loan_offer=personal_loan_offer,
                                 import_file=import_file)
-            db.session.add(customer)
-
-            # Personal Loan Offer
-            predicted_response = 'Accepted' if row['Prediction'] == 1 else 'Declined'
-            prediction_probability = float(row['PredictionProbability']) * 100
-            actual_response = row['ActualResponse']
-            personal_loan_offer = PersonalLoanOffer(customer=customer,
-                                                    predicted_response=predicted_response,
-                                                    prediction_probability=prediction_probability,
-                                                    actual_response=actual_response)
-            db.session.add(personal_loan_offer)
 
         return import_file
 

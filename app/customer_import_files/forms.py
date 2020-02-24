@@ -13,4 +13,4 @@ class CustomersForm(FlaskForm):
         file_name = secure_filename(self.customers_csv.data.filename)
         file_path = os.path.join(file_directory, file_name)
         self.customers_csv.data.save(file_path)
-        return file_path
+        return file_path, file_name

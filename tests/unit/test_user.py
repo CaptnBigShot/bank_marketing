@@ -8,5 +8,3 @@ class TestUser:
         u.set_password('correct')
         assert u.check_password('correct')
         assert not u.check_password('incorrect')
-
-
