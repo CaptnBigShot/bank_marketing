@@ -137,3 +137,4 @@ logs
 app.db
 
 .idea
+/test.db
